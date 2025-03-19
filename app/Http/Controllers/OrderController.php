@@ -22,7 +22,6 @@ class OrderController extends Controller
             'car_model' => 'required|string',
             'car_year' => 'required|digits:4',
             'car_weight' => 'required|numeric',
-            'car_reg_number' => 'required|string',
             'accident' => 'boolean',
             'photos.*' => 'image|mimes:jpeg,png,jpg,gif|max:8192',
         ]);
@@ -44,7 +43,6 @@ class OrderController extends Controller
             'model' => $request->car_model,
             'year' => $request->car_year,
             'weight' => $request->car_weight,
-            'reg_number' => $request->car_reg_number,
         ]);
 
         $clientId = null;

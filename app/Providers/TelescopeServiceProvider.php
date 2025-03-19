@@ -17,17 +17,10 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
         // Telescope::night();
 
         $this->hideSensitiveRequestDetails();
+        Telescope::filter(function (IncomingEntry $entry) {
+        return true; // Записываем ВСЕ события
+    });
 
-        $isLocal = $this->app->environment('local');
-
-        Telescope::filter(function (IncomingEntry $entry) use ($isLocal) {
-            return $isLocal ||
-                   $entry->isReportableException() ||
-                   $entry->isFailedRequest() ||
-                   $entry->isFailedJob() ||
-                   $entry->isScheduledTask() ||
-                   $entry->hasMonitoredTag();
-        });
     }
 
     /**
@@ -55,10 +48,15 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
      */
     protected function gate(): void
     {
-        Gate::define('viewTelescope', function ($user) {
-            return in_array($user->email, [
-                'stepachkin000@yandex.ru',
-            ]);
-        });
+    Gate::define('viewTelescope', function ($user = null) {
+        $allowedIps = ['178.214.247.23']; // Замени на свой реальный IP
+
+        // Получаем IP из заголовков (если есть прокси)
+        $requestIp = request()->ip();
+        $forwardedIp = request()->header('X-Forwarded-For');
+
+        // Разрешаем доступ, если IP в списке
+        return in_array($requestIp, $allowedIps) || in_array($forwardedIp, $allowedIps);
+    });
     }
 }
